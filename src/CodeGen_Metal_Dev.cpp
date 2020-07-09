@@ -461,7 +461,7 @@ void CodeGen_Metal_Dev::CodeGen_Metal_C::visit(const Atomic *op) {
     user_assert(false) << "Atomic updates are not supported inside Metal kernels";
 }
 
-void CodeGen_Metal_Dev::add_kernel(Stmt s,
+void CodeGen_Metal_Dev::add_kernel(const Stmt &s,
                                    const string &name,
                                    const vector<DeviceArgument> &args) {
     debug(2) << "CodeGen_Metal_Dev::compile " << name << "\n";

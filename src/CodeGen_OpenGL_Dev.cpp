@@ -45,7 +45,7 @@ CodeGen_OpenGL_Dev::~CodeGen_OpenGL_Dev() {
     delete glc;
 }
 
-void CodeGen_OpenGL_Dev::add_kernel(Stmt s, const string &name,
+void CodeGen_OpenGL_Dev::add_kernel(const Stmt &s, const string &name,
                                     const vector<DeviceArgument> &args) {
     cur_kernel_name = name;
     glc->add_kernel(s, name, args);

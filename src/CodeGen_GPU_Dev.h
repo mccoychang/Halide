@@ -20,7 +20,7 @@ struct CodeGen_GPU_Dev {
     /** Compile a GPU kernel into the module. This may be called many times
      * with different kernels, which will all be accumulated into a single
      * source module shared by a given Halide pipeline. */
-    virtual void add_kernel(Stmt stmt,
+    virtual void add_kernel(const Stmt &stmt,
                             const std::string &name,
                             const std::vector<DeviceArgument> &args) = 0;
 

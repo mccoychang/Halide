@@ -21,7 +21,7 @@ public:
     /** Compile a GPU kernel into the module. This may be called many times
      * with different kernels, which will all be accumulated into a single
      * source module shared by a given Halide pipeline. */
-    void add_kernel(Stmt stmt,
+    void add_kernel(const Stmt &stmt,
                     const std::string &name,
                     const std::vector<DeviceArgument> &args) override;
 
@@ -50,7 +50,7 @@ protected:
         CodeGen_D3D12Compute_C(std::ostream &s, Target t)
             : CodeGen_C(s, t) {
         }
-        void add_kernel(Stmt stmt,
+        void add_kernel(const Stmt &stmt,
                         const std::string &name,
                         const std::vector<DeviceArgument> &args);
 

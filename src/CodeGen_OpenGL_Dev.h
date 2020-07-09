@@ -23,7 +23,7 @@ public:
     ~CodeGen_OpenGL_Dev() override;
 
     // CodeGen_GPU_Dev interface
-    void add_kernel(Stmt stmt, const std::string &name,
+    void add_kernel(const Stmt &stmt, const std::string &name,
                     const std::vector<DeviceArgument> &args) override;
 
     void init_module() override;

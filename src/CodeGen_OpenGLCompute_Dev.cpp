@@ -214,7 +214,7 @@ void CodeGen_OpenGLCompute_Dev::CodeGen_OpenGLCompute_C::visit(const Select *op)
     print_assignment(op->type, rhs.str());
 }
 
-void CodeGen_OpenGLCompute_Dev::add_kernel(Stmt s,
+void CodeGen_OpenGLCompute_Dev::add_kernel(const Stmt &s,
                                            const string &name,
                                            const vector<DeviceArgument> &args) {
     debug(2) << "CodeGen_OpenGLCompute_Dev::compile " << name << "\n";

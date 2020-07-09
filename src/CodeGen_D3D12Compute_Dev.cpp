@@ -842,7 +842,7 @@ void CodeGen_D3D12Compute_Dev::CodeGen_D3D12Compute_C::visit(const FloatImm *op)
     return CodeGen_C::visit(op);
 }
 
-void CodeGen_D3D12Compute_Dev::add_kernel(Stmt s,
+void CodeGen_D3D12Compute_Dev::add_kernel(const Stmt &s,
                                           const string &name,
                                           const vector<DeviceArgument> &args) {
     debug(2) << "CodeGen_D3D12Compute_Dev::compile " << name << "\n";
@@ -870,7 +870,7 @@ struct BufferSize {
 };
 }  // namespace
 
-void CodeGen_D3D12Compute_Dev::CodeGen_D3D12Compute_C::add_kernel(Stmt s,
+void CodeGen_D3D12Compute_Dev::CodeGen_D3D12Compute_C::add_kernel(const Stmt &s,
                                                                   const string &name,
                                                                   const vector<DeviceArgument> &args) {
 

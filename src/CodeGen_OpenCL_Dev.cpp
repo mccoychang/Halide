@@ -670,7 +670,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Atomic *op) {
     CodeGen_C::visit(op);
 }
 
-void CodeGen_OpenCL_Dev::add_kernel(Stmt s,
+void CodeGen_OpenCL_Dev::add_kernel(const Stmt &s,
                                     const string &name,
                                     const vector<DeviceArgument> &args) {
     debug(2) << "CodeGen_OpenCL_Dev::compile " << name << "\n";
@@ -698,7 +698,7 @@ struct BufferSize {
 };
 }  // namespace
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::add_kernel(Stmt s,
+void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::add_kernel(const Stmt &s,
                                                       const string &name,
                                                       const vector<DeviceArgument> &args) {
 
