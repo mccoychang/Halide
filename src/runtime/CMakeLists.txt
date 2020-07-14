@@ -156,7 +156,7 @@ foreach (i IN LISTS RUNTIME_CPP)
                 set(TARGET "i386-unknown-unknown-unknown")
             else ()
                 # (The 'nacl' is a red herring. This is just a generic 32-bit little-endian target.)
-                set(TARGET "le32-unknown-nacl-unknown")
+                set(TARGET "i386-unknown-unknown-unknown")
             endif ()
         else ()
             # generic 64-bit code

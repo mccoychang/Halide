@@ -14,7 +14,7 @@ namespace Internal {
 // A spinlock that allows for shared and exclusive access. It's
 // equivalent to a reader-writer lock, but in my case the "readers"
 // will actually be writing simultaneously to the trace buffer, so
-// that's a bad name. We use the __sync primitives used elsewhere in
+// that's a bad name. We use the __atomic primitives used elsewhere in
 // the runtime for atomic work. They are well supported by clang.
 class SharedExclusiveSpinLock {
     volatile uint32_t lock;
@@ -37,16 +37,19 @@ class SharedExclusiveSpinLock {
 
 public:
     ALWAYS_INLINE void acquire_shared() {
+        uint32_t x = __atomic_load_n(&lock, __ATOMIC_ACQUIRE);
         while (1) {
-            uint32_t x = lock & shared_mask;
-            if (__sync_bool_compare_and_swap(&lock, x, x + 1)) {
+            x &= shared_mask;
+            // NB: x is reloaded if __atomic_compare_exchange_n returns false
+            if (__atomic_compare_exchange_n(&lock, &x, x + 1,
+                /*weak*/true, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED)) {
                 return;
             }
         }
     }
 
     ALWAYS_INLINE void release_shared() {
-        __sync_fetch_and_sub(&lock, 1);
+        __atomic_fetch_sub(&lock, 1, __ATOMIC_ACQ_REL);
     }
 
     ALWAYS_INLINE void acquire_exclusive() {
@@ -55,15 +58,18 @@ public:
             // ownership, we may need to rerequest exclusive waiting
             // while we spin, as it gets unset whenever a thread
             // acquires exclusive ownership.
-            __sync_fetch_and_or(&lock, exclusive_waiting_mask);
-            if (__sync_bool_compare_and_swap(&lock, exclusive_waiting_mask, exclusive_held_mask)) {
+            __atomic_fetch_or(&lock, exclusive_waiting_mask, __ATOMIC_ACQ_REL);
+            // NB: exclusive_waiting_mask is reloaded if __atomic_compare_exchange_n returns false
+            uint32_t expected = exclusive_waiting_mask;
+            if (__atomic_compare_exchange_n(&lock, &expected, exclusive_held_mask,
+                    /*weak*/true, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED)) {
                 return;
             }
         }
     }
 
     ALWAYS_INLINE void release_exclusive() {
-        __sync_fetch_and_and(&lock, ~exclusive_held_mask);
+        __atomic_fetch_and(&lock, ~exclusive_held_mask, __ATOMIC_ACQ_REL);
     }
 
     ALWAYS_INLINE void init() {
@@ -87,13 +93,13 @@ class TraceBuffer {
     ALWAYS_INLINE halide_trace_packet_t *try_acquire_packet(void *user_context, uint32_t size) {
         lock.acquire_shared();
         halide_assert(user_context, size <= buffer_size);
-        uint32_t my_cursor = __sync_fetch_and_add(&cursor, size);
+        uint32_t my_cursor = __atomic_fetch_add(&cursor, size, __ATOMIC_ACQ_REL);
         if (my_cursor + size > sizeof(buf)) {
             // Don't try to back it out: instead, just allow this request to fail
             // (along with all subsequent requests) and record the 'overage'
             // that was added and should be ignored; then, in the next flush,
             // remove the overage.
-            __sync_fetch_and_add(&overage, size);
+            __atomic_fetch_add(&overage, size, __ATOMIC_ACQ_REL);
             lock.release_shared();
             return NULL;
         } else {
@@ -164,7 +170,7 @@ extern "C" {
 WEAK int32_t halide_default_trace(void *user_context, const halide_trace_event_t *e) {
     static int32_t ids = 1;
 
-    int32_t my_id = __sync_fetch_and_add(&ids, 1);
+    int32_t my_id = __atomic_fetch_add(&ids, 1, __ATOMIC_ACQ_REL);
 
     // If we're dumping to a file, use a binary format
     int fd = halide_get_trace_file(user_context);
