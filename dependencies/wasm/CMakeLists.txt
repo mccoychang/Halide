@@ -28,12 +28,12 @@ if ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
 endif ()
 
 if (WITH_WABT)
-    set(WABT_VER 1.0.16)
+    set(WABT_VER 1.0.18)
 
     message(STATUS "Fetching WABT ${WABT_VER}...")
     FetchContent_Declare(wabt
                          GIT_REPOSITORY https://github.com/WebAssembly/wabt.git
-                         # GIT_TAG ${WABT_VER}  # TODO: just get at tip for now
+                         GIT_TAG ${WABT_VER}
                          GIT_SHALLOW TRUE
                          GIT_SUBMODULES "")
 
